@@ -13,7 +13,7 @@ import 'package:num_plus_plus/src/pages/settingpage.dart';
 class Server {
   // class from inAppBrowser
 
-  HttpServer _server;
+  HttpServer? _server;
 
   int _port = 8080;
 
@@ -24,7 +24,7 @@ class Server {
   ///Closes the server.
   Future<void> close() async {
     if (this._server != null) {
-      await this._server.close(force: true);
+      await this._server?.close(force: true);
       print('Server running on http://localhost:$_port closed');
       this._server = null;
     }
@@ -43,7 +43,7 @@ class Server {
         this._server = server;
 
         server.listen((HttpRequest request) async {
-          var body = List<int>();
+          var body = <int>[];
           var path = request.requestedUri.path;
           path = (path.startsWith('/')) ? path.substring(1) : path;
           path += (path.endsWith('/')) ? 'index.html' : '';
@@ -83,16 +83,18 @@ class Server {
 class MathBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final mathBoxController = Provider.of<MathBoxController>(context, listen: false);
+    final mathBoxController =
+        Provider.of<MathBoxController>(context, listen: false);
     final mathModel = Provider.of<MathModel>(context, listen: false);
     final matrixModel = Provider.of<MatrixModel>(context, listen: false);
     final functionModel = Provider.of<FunctionModel>(context, listen: false);
     final mode = Provider.of<CalculationMode>(context, listen: false);
     return Stack(
       children: <Widget>[
-        WebView(
+        Webview(
           onWebViewCreated: (controller) {
-            controller.loadUrl("http://localhost:8080/assets/html/homepage.html");
+            controller
+                .loadUrl("http://localhost:8080/assets/html/homepage.html");
             mathBoxController.webViewController = controller;
           },
           onPageFinished: (s) {
@@ -104,28 +106,27 @@ class MathBox extends StatelessWidget {
           javascriptMode: JavascriptMode.unrestricted,
           javascriptChannels: Set.from([
             JavascriptChannel(
-              name: 'latexString',
-              onMessageReceived: (JavascriptMessage message) {
-                if (mode.value == Mode.Matrix) {
-                  matrixModel.updateExpression(message.message);
-                } else {
-                  if (message.message.contains(RegExp('x|y'))) {
-                    mode.changeMode(Mode.Function);
-                    functionModel.updateExpression(message.message);
+                name: 'latexString',
+                onMessageReceived: (JavascriptMessage message) {
+                  if (mode.value == Mode.Matrix) {
+                    matrixModel.updateExpression(message.message);
                   } else {
-                    mode.changeMode(Mode.Basic);
-                    mathModel.updateExpression(message.message);
-                    mathModel.calcNumber();
+                    if (message.message.contains(RegExp('x|y'))) {
+                      mode.changeMode(Mode.Function);
+                      functionModel.updateExpression(message.message);
+                    } else {
+                      mode.changeMode(Mode.Basic);
+                      mathModel.updateExpression(message.message);
+                      mathModel.calcNumber();
+                    }
                   }
-                }
-              }
-            ),
+                }),
             JavascriptChannel(
-              name: 'clearable',
-              onMessageReceived: (JavascriptMessage message) {
-                mathModel.changeClearable(message.message == 'false'?false:true);
-              }
-            ),
+                name: 'clearable',
+                onMessageReceived: (JavascriptMessage message) {
+                  mathModel.changeClearable(
+                      message.message == 'false' ? false : true);
+                }),
           ]),
         ),
         ClearAnimation(),
@@ -139,18 +140,21 @@ class ClearAnimation extends StatefulWidget {
   _ClearAnimationState createState() => _ClearAnimationState();
 }
 
-class _ClearAnimationState extends State<ClearAnimation> with TickerProviderStateMixin {
-
+class _ClearAnimationState extends State<ClearAnimation>
+    with TickerProviderStateMixin {
   AnimationController animationController;
   Animation animation;
 
   @override
   void initState() {
     super.initState();
-    animationController = AnimationController(duration: const Duration(milliseconds: 500),vsync: this);
-    final curve = CurvedAnimation(parent: animationController, curve: Curves.easeInOutCubic);
+    animationController = AnimationController(
+        duration: const Duration(milliseconds: 500), vsync: this);
+    final curve = CurvedAnimation(
+        parent: animationController, curve: Curves.easeInOutCubic);
     animation = Tween<double>(begin: 0, end: 2000).animate(curve);
-    Provider.of<MathBoxController>(context, listen: false).clearAnimationController = animationController;
+    Provider.of<MathBoxController>(context, listen: false)
+        .clearAnimationController = animationController;
   }
 
   @override
@@ -161,8 +165,8 @@ class _ClearAnimationState extends State<ClearAnimation> with TickerProviderStat
 
   Widget _buildAnimation(BuildContext context, Widget child) {
     return Positioned(
-      top: 10-animation.value/2,
-      right: -animation.value/2,
+      top: 10 - animation.value / 2,
+      right: -animation.value / 2,
       child: ClipOval(
         child: Container(
           height: animation.value,
@@ -183,7 +187,6 @@ class _ClearAnimationState extends State<ClearAnimation> with TickerProviderStat
 }
 
 class MathBoxController {
-
   WebViewController _webViewController;
   AnimationController clearAnimationController;
 
@@ -193,7 +196,8 @@ class MathBoxController {
 
   void addExpression(String msg, {bool isOperator = false}) {
     assert(_webViewController != null);
-    _webViewController.evaluateJavascript("addCmd('$msg', {isOperator: ${isOperator.toString()}})");
+    _webViewController.evaluateJavascript(
+        "addCmd('$msg', {isOperator: ${isOperator.toString()}})");
   }
 
   void addString(String msg) {
@@ -220,5 +224,4 @@ class MathBoxController {
     assert(_webViewController != null);
     _webViewController.evaluateJavascript("delAll()");
   }
-  
 }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_icons/flutter_icons.dart';
 
 import 'package:num_plus_plus/src/widgets/mathbox.dart';
 import 'package:num_plus_plus/src/widgets/result.dart';
@@ -29,14 +28,16 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => SettingModel()),
         ChangeNotifierProxyProvider<SettingModel, MathModel>(
           create: (context) => MathModel(),
-          update: (context, settings, model) => model
-            ..changeSetting(
-                precision: settings.precision.toInt(),
-                isRadMode: settings.isRadMode),
+          update: (context, settings, model) {
+            return model!
+              ..changeSetting(
+                  precision: settings.precision.toInt(),
+                  isRadMode: settings.isRadMode);
+          },
         ),
         ChangeNotifierProxyProvider<SettingModel, MatrixModel>(
           create: (context) => MatrixModel(),
-          update: (context, settings, model) => model
+          update: (context, settings, model) => model!
             ..changeSetting(
               precision: settings.precision.toInt(),
             ),
@@ -48,16 +49,16 @@ class MyApp extends StatelessWidget {
             if (settings.loading.isCompleted) {
               switch (settings.initPage) {
                 case 0:
-                  if (model.value == Mode.Matrix) {
-                    model.value = Mode.Basic;
+                  if (model!.value == Mode.Matrix) {
+                    model!.value = Mode.Basic;
                   }
                   break;
                 case 1:
-                  model.changeMode(Mode.Matrix);
+                  model!.changeMode(Mode.Matrix);
                   break;
               }
             }
-            return model;
+            return model!;
           },
           dispose: (context, value) => value.dispose(),
         ),
@@ -82,7 +83,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
   final Server _server = Server();
-  TabController tabController;
+  TabController? tabController;
   List tabs = ["Basic", "Matrix"];
 
   @override
@@ -108,10 +109,11 @@ class _HomePageState extends State<HomePage>
       appBar: AppBar(
         elevation: 0.0,
         backgroundColor: Colors.transparent,
-        brightness: Brightness.light,
+        // brightness: Brightness.light,
         leading: IconButton(
           icon: Icon(
-            MaterialCommunityIcons.getIconData("settings-outline"),
+            Icons.settings_outlined,
+            // MaterialCommunityIcons.getIconData("settings-outline"),
             color: Colors.grey,
           ),
           onPressed: () {
@@ -125,7 +127,7 @@ class _HomePageState extends State<HomePage>
           future: setting.loading.future,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.done) {
-              tabController.index = setting.initPage;
+              tabController?.index = setting.initPage;
             }
             return TabBar(
               indicatorColor: Colors.blueAccent[400],
@@ -200,7 +202,7 @@ class SlidComponent extends StatelessWidget {
                 return MatrixButton();
                 break;
               case Mode.Function:
-                return OutlineButton(
+                return OutlinedButton(
                   child: Text('Analyze'),
                   onPressed: () {
                     Navigator.push(

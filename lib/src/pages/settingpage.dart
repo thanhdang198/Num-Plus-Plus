@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter_icons/flutter_icons.dart';
 
 import 'package:num_plus_plus/src/backend/mathmodel.dart';
 
@@ -15,13 +14,17 @@ class SettingPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back,),
+          icon: Icon(
+            Icons.arrow_back,
+          ),
           onPressed: () {
             mathModel.calcNumber();
             Navigator.pop(context);
           },
         ),
-        title: Text('Setting',),
+        title: Text(
+          'Setting',
+        ),
       ),
       body: ListView(
         itemExtent: 60.0,
@@ -49,7 +52,7 @@ class SettingPage extends StatelessWidget {
                 ),
                 isSelected: [setmodel.isRadMode, !setmodel.isRadMode],
                 onPressed: (index) {
-                  setmodel.changeRadMode((index==0)?true:false);
+                  setmodel.changeRadMode((index == 0) ? true : false);
                 },
               ),
             ),
@@ -80,24 +83,27 @@ class SettingPage extends StatelessWidget {
             ),
           ),
           ListTile(
-            leading: Icon(MaterialCommunityIcons.getIconData("github-circle")),
+            leading: Icon(Icons.gite),
             title: Text('Github'),
             onTap: () {
               _launchURL('https://github.com/DylanXie123/Num-Plus-Plus');
             },
           ),
           ListTile(
-            leading: Icon(MaterialCommunityIcons.getIconData("email-edit-outline"),),
+            leading: Icon(
+              Icons.email_outlined,
+            ),
             title: Text('Email'),
             onTap: () {
               _launchURL('mailto:dylanxie123@outlook.com?subject=num%2b%2b');
             },
           ),
           ListTile(
-            leading: Icon(AntDesign.getIconData("alipay-circle"),),
+            leading: Icon(Icons.payment),
             title: Text('Donation'),
             onTap: () {
-              _launchURL('alipayqr://platformapi/startapp?saId=10000007&qrcode=https://qr.alipay.com/tsx06831xbzn79nimg64e6a');
+              _launchURL(
+                  'alipayqr://platformapi/startapp?saId=10000007&qrcode=https://qr.alipay.com/tsx06831xbzn79nimg64e6a');
             },
           ),
         ],
@@ -112,7 +118,6 @@ class SettingPage extends StatelessWidget {
       throw 'Could not launch $url';
     }
   }
-
 }
 
 class SettingModel with ChangeNotifier {
@@ -129,7 +134,7 @@ class SettingModel with ChangeNotifier {
   Future changeSlider(double val) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     precision = val;
-    prefs.setDouble('precision', precision);
+    prefs.setDouble('precision', precision.toDouble());
     notifyListeners();
   }
 
@@ -161,5 +166,4 @@ class SettingModel with ChangeNotifier {
     loading.complete();
     notifyListeners();
   }
-
 }
